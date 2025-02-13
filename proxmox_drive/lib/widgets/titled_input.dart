@@ -4,11 +4,13 @@ class TitledInput extends StatefulWidget {
 
   final String title;
   final String? value;
+  Function(String) callback;
 
-  const TitledInput({
+  TitledInput({
     super.key,
     required this.title,
-    required this.value
+    required this.value,
+    required this.callback
   });
 
   @override
@@ -64,6 +66,7 @@ class _TitledInputState extends State<TitledInput> {
           height: 30, 
           child: TextField(
             controller: _controller,
+            onChanged: (value) {widget.callback(value);},
             textAlign: TextAlign.start,
             textAlignVertical: TextAlignVertical.top,
             decoration: const InputDecoration(

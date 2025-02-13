@@ -14,6 +14,12 @@ class _LoginState extends State<Login> {
 
   List<dynamic> _servers = [];
   int? _selectedServer;
+  final Map<String, dynamic> _newServer = {
+    "name": "",
+    "server": "",
+    "port": -1,
+    "key": ""
+  };
 
   @override
   void initState() {
@@ -33,7 +39,7 @@ class _LoginState extends State<Login> {
       ),
       body: Center(
         child: SizedBox(
-          height: 400,
+          height: 300,
           width: 500,
           child: Container(
             decoration: BoxDecoration(
@@ -93,10 +99,47 @@ class _LoginState extends State<Login> {
                     const SizedBox(
                       height: 16,
                     ),
-                    TitledInput(title: "Nom", value: _selectedServer != null ? _servers[_selectedServer!]["name"] : null),
-                    TitledInput(title: "Servidor", value: _selectedServer != null ? _servers[_selectedServer!]["server"] : null),
-                    TitledInput(title: "Port", value: _selectedServer != null ? _servers[_selectedServer!]["port"].toString() : null),
-                    TitledInput(title: "Clau", value: _selectedServer != null ? _servers[_selectedServer!]["key"] : null),
+                    TitledInput(
+                      title: "Nom", 
+                      value: _selectedServer != null ? _servers[_selectedServer!]["name"] : null,
+                      callback: (value) {
+                        setState(() {
+                          _newServer["name"] = value;
+                        });
+                        AppData.getServers().then((value) => {
+                          setState(() {
+                            _servers = value;
+                          })
+                        });
+                      },
+                    ),
+                    TitledInput(
+                      title: "Servidor", 
+                      value: _selectedServer != null ? _servers[_selectedServer!]["server"] : null,
+                      callback: (value) {
+                        setState(() {
+                          _newServer["server"] = value;
+                        });
+                      },
+                    ),
+                    TitledInput(
+                      title: "Port", 
+                      value: _selectedServer != null ? _servers[_selectedServer!]["port"].toString() : null,
+                      callback: (value) {
+                        setState(() {
+                          _newServer["port"] = value;
+                        });
+                      },
+                    ),
+                    TitledInput(
+                      title: "Clau",
+                      value: _selectedServer != null ? _servers[_selectedServer!]["key"] : null,
+                      callback: (value) {
+                        setState(() {
+                          _newServer["key"] = value;
+                        });
+                      },
+                    ),
                     const SizedBox(
                       height: 16,
                     ),
@@ -132,7 +175,11 @@ class _LoginState extends State<Login> {
                                 side: const BorderSide(color: Colors.black, width: 0.5)
                               )
                             ),
-                            onPressed: () {}, 
+                            onPressed: () {
+                              if(_newServer["name"] != "") {
+                                AppData.saveServer(_newServer);
+                              }
+                            }, 
                             child: const Text(
                               "Guardar"
                             )
