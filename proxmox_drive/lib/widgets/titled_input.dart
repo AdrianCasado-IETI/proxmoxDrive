@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class TitledInput extends StatefulWidget {
+  const TitledInput({super.key});
+
   @override
   State<TitledInput> createState() => _TitledInputState();
 }

@@ -1,18 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:proxmox_drive/pages/login.dart';
+import 'services/ssh_services.dart';
 
-void main() {
-  runApp(const MainApp());
-}
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  print("🚀 Iniciando conexión SSH...");
 
-  @override
-  Widget build(BuildContext context) {
-    return const MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Login()
-    );
-  }
+  SSHService ssh = await SSHService.create(
+    serverName: "root",
+    serverAddress: "192.168.1.100",
+    port: 22,
+    privateKeyPath: "/ruta/a/id_rsa",
+  );
+
+  print("✅ Conexión establecida. Ejecutando comando...");
+
+  String output = await ssh.executeCommand("ls -l /var/lib/lxc/");
+  print("📂 Archivos en el servidor:\n$output");
+
+  ssh.disconnect();
 }

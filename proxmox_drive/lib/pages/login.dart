@@ -18,7 +18,7 @@ class Login extends StatelessWidget {
             decoration: BoxDecoration(
               border: Border.all()
             ),
-            child: Column(
+            child: const Column(
               children: [
                 
               ],
