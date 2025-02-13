@@ -1,0 +1,14 @@
+[
+    {
+        "name": "Server 1",
+        "server": "ieticloudpro.ieti.site",
+        "port": 20127,
+        "key": "id_rsa"
+    },
+    {
+        "name": "Server 2",
+        "server": "ieticloudpro.ieti.site",
+        "port": 20127,
+        "key": "id_rsa"
+    }
+]
