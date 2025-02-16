@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:proxmox_drive/pages/login.dart';
 
-void main() {
-  runApp(const MainApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {
@@ -10,9 +11,12 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white
+      ),
       debugShowCheckedModeBanner: false,
-      home: Login()
+      home: const Login()
     );
   }
 }
