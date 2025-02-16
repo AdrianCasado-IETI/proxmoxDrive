@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:proxmox_drive/pages/login.dart';
 
-void main() {
-  runApp(const MainApp());
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  runApp(MainApp());
 }
 
 class MainApp extends StatelessWidget {

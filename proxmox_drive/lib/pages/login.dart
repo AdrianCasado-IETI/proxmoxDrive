@@ -14,7 +14,7 @@ class _LoginState extends State<Login> {
 
   List<dynamic> _servers = [];
   int? _selectedServer;
-  final Map<String, dynamic> _newServer = {
+  Map<String, dynamic> _newServer = {
     "name": "",
     "server": "",
     "port": -1,
@@ -34,9 +34,6 @@ class _LoginState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("Proxmox Drive"),
-      ),
       body: Center(
         child: SizedBox(
           height: 300,
@@ -72,6 +69,13 @@ class _LoginState extends State<Login> {
                               onTap: () {
                                 setState(() {
                                   _selectedServer = index;
+                                  _newServer = {
+                                    "name": _servers[_selectedServer!]["name"],
+                                    "server": _servers[_selectedServer!]["server"],
+                                    "port": _servers[_selectedServer!]["port"],
+                                    "key": _servers[_selectedServer!]["key"],
+                                  };
+                                  print(_newServer);
                                 });
                               },
                               child: ListTile(
@@ -101,22 +105,17 @@ class _LoginState extends State<Login> {
                     ),
                     TitledInput(
                       title: "Nom", 
-                      value: _selectedServer != null ? _servers[_selectedServer!]["name"] : null,
-                      callback: (value) {
+                      value: _selectedServer != null ? _newServer["name"] : null,
+                      onChanged: (value) {
                         setState(() {
                           _newServer["name"] = value;
-                        });
-                        AppData.getServers().then((value) => {
-                          setState(() {
-                            _servers = value;
-                          })
                         });
                       },
                     ),
                     TitledInput(
                       title: "Servidor", 
-                      value: _selectedServer != null ? _servers[_selectedServer!]["server"] : null,
-                      callback: (value) {
+                      value: _selectedServer != null ? _newServer["server"] : null,
+                      onChanged: (value) {
                         setState(() {
                           _newServer["server"] = value;
                         });
@@ -124,17 +123,22 @@ class _LoginState extends State<Login> {
                     ),
                     TitledInput(
                       title: "Port", 
-                      value: _selectedServer != null ? _servers[_selectedServer!]["port"].toString() : null,
-                      callback: (value) {
+                      value: _selectedServer != null ? _newServer["port"].toString() : null,
+                      onChanged: (value) {
                         setState(() {
-                          _newServer["port"] = value;
+                          try {
+                            _newServer["port"] = int.parse(value);
+                          } catch (error) {
+                            _newServer["port"] = -1;
+                          }
+                          
                         });
                       },
                     ),
                     TitledInput(
                       title: "Clau",
-                      value: _selectedServer != null ? _servers[_selectedServer!]["key"] : null,
-                      callback: (value) {
+                      value: _selectedServer != null ? _newServer["key"] : null,
+                      onChanged: (value) {
                         setState(() {
                           _newServer["key"] = value;
                         });
@@ -158,10 +162,23 @@ class _LoginState extends State<Login> {
                                 side: const BorderSide(color: Colors.black, width: 0.5)
                               )
                             ),
-                            onPressed: () {}, 
+                            onPressed: () {
+                              if(_newServer["name"] != "") {
+                                AppData.deleteServer(_newServer["name"]).then((value) {
+                                  if (value) {
+                                    AppData.getServers().then((data) {
+                                      setState(() {
+                                        print("Servidores actualizados: $data");
+                                        _servers = data;
+                                      });
+                                    });
+                                  }
+                                });
+                              }
+                            }, 
                             child: const Icon(
                               Icons.delete
-                            )
+                            ),
                           ),
                         ),
                         Padding(
@@ -176,8 +193,15 @@ class _LoginState extends State<Login> {
                               )
                             ),
                             onPressed: () {
-                              if(_newServer["name"] != "") {
-                                AppData.saveServer(_newServer);
+                              if(_newServer["name"] != "" && _newServer["server"] != "" && _newServer["port"] != "") {
+                                AppData.saveServer(_newServer).then((value) {
+                                    AppData.getServers().then((value) {
+                                      setState(() {
+                                        print("Servidores actualizados: $value");
+                                        _servers = value;
+                                      });
+                                    },);
+                                },);
                               }
                             }, 
                             child: const Text(
