@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:proxmox_drive/pages/login.dart';
+import 'services/ssh_services.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  
   runApp(MainApp());
 }
 
-class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  String output = await ssh.executeCommand("ls -l /var/lib/lxc/");
+  print("📂 Archivos en el servidor:\n$output");
 
   @override
   Widget build(BuildContext context) {
