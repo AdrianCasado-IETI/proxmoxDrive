@@ -5,40 +5,28 @@ import 'services/server_manager.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  print("Iniciando conexión SSH...");
+  print("🚀 Iniciando conexión SSH...");
 
   SSHService ssh = await SSHService.create(
-    serverName: "imagia3",
-    serverAddress: "ieticloudpro.ieti.cat",
-    port: 20127,
-    privateKeyPath: "/home/nacro/.ssh/clave",
+    serverName: "root",
+    serverAddress: "192.168.1.100",
+    port: 22,
+    privateKeyPath: "/ruta/a/id_rsa",
   );
 
-  print("Conexión establecida. Detectando servidores...");
+  print("✅ Conexión establecida. Ejecutando comando...");
 
-  ServerManager serverManager = ServerManager(ssh.client);
+  String output = await ssh.executeCommand("ls -l /var/lib/lxc/");
+  print("📂 Archivos en el servidor:\n$output");
 
-  String remotePath = "/home/super/ImagIA_Server";
-  int remotePort = 3000;
-  int localPort = 8080;
-
-  String? serverType = await serverManager.detectServer(remotePath);
-
-  if (serverType != null) {
-    bool isRunning = await serverManager.isServerRunning(remotePort);
-
-    if (!isRunning) {
-      print("Servidor $serverType no está en ejecución. Iniciando...");
-      await serverManager.startServer(serverType, remotePath, remotePort);
-    } else {
-      print("Servidor $serverType ya está en ejecución en el puerto $remotePort.");
-    }
-
-    print("Configurando redirección de puertos...");
-    await serverManager.setupPortForwarding("127.0.0.1", remotePort, localPort);
-  } else {
-    print("No se detectó un servidor NodeJS o Java en $remotePath.");
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      theme: ThemeData(
+        scaffoldBackgroundColor: Colors.white
+      ),
+      debugShowCheckedModeBanner: false,
+      home: const Login()
+    );
   }
-
-  ssh.disconnect();
 }
