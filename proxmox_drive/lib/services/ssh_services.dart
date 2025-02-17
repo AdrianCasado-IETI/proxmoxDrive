@@ -37,7 +37,7 @@ class SSHService {
 
   // Método privado para inicializar la conexión SSH con timeout
   Future<void> _connect() async {
-    print("🔌 Conectando a $serverAddress:$port con usuario $serverName...");
+    print("Conectando a $serverAddress:$port con usuario $serverName...");
     
     try {
       final socket = await SSHSocket.connect(serverAddress, port).timeout(Duration(seconds: 10));
@@ -52,9 +52,9 @@ class SSHService {
         identities: [identity],
       );
 
-      print("✅ Conexión SSH establecida con éxito.");
+      print("Conexión SSH establecida con éxito.");
     } catch (e) {
-      print("❌ Error conectando al servidor SSH: $e");
+      print("Error conectando al servidor SSH: $e");
     }
   }
 
@@ -65,13 +65,13 @@ class SSHService {
       final result = await client.run(command);
       return String.fromCharCodes(result);
     } catch (e) {
-      return '❌ Error ejecutando comando: $e';
+      return 'Error ejecutando comando: $e';
     }
   }
 
   // Método para cerrar la conexión SSH
   void disconnect() {
-    print("🔌 Desconectando SSH...");
+    print("Desconectando SSH...");
     client.close();
   }
 }
