@@ -1,26 +1,23 @@
 import 'dart:convert';
 import 'dart:io';
 
+import 'package:file_picker/file_picker.dart';
 import 'package:path_provider/path_provider.dart';
 
 class AppData {
 
   static Future<List<dynamic>> getServers() async {
   try {
-    // Obtener el directorio de documentos
     final appDir = await getApplicationDocumentsDirectory();
     final file = File('${appDir.path}/data.json');
 
     if (await file.exists()) {
       String jsonString = await file.readAsString();
-      print("Raw: $jsonString");
       return jsonDecode(jsonString);
     } else {
-      // Si el archivo no existe, devuelve una lista vacía
       return [];
     }
   } catch (error) {
-    print("Error al obtener servidores: $error");
     return [];
   }
 }
@@ -53,7 +50,6 @@ static Future<bool> saveServer(Map<String, dynamic> server) async {
     await file.writeAsString(updatedJsonString);
     return true;
   } catch (error) {
-    print("Error al guardar servidor: $error");
     return false;
   }
 }
@@ -79,8 +75,23 @@ static Future<bool> saveServer(Map<String, dynamic> server) async {
       await file.writeAsString(jsonEncode(servers));
       return true;
     } catch(error) {
-      print("Ha habido un error eliminando: $error");
       return false;
     }
+  }
+
+  static Future<String?> chooseLocalFile() async {
+
+    FilePickerResult? result = await FilePicker.platform.pickFiles();
+
+    if(result != null) {
+      return result.files.single.path;
+    }
+    return null;
+    
+  }
+
+  static Future<String?> chooseLocalDir() async {
+    String? result = await FilePicker.platform.getDirectoryPath();
+    return result;
   }
 }

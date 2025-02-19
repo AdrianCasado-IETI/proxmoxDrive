@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'services/ssh_services.dart';
+import 'package:proxmox_drive/pages/home.dart';
+import 'package:proxmox_drive/pages/login.dart';
+import 'package:proxmox_drive/ssh_conn.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -7,8 +9,16 @@ void main() async {
   runApp(MainApp());
 }
 
-  String output = await ssh.executeCommand("ls -l /var/lib/lxc/");
-  print("📂 Archivos en el servidor:\n$output");
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+
+  bool _loggedIn = false;
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +27,22 @@ void main() async {
         scaffoldBackgroundColor: Colors.white
       ),
       debugShowCheckedModeBanner: false,
-      home: const Login()
+      home: _loggedIn ? Home(
+        onLogOut: () {
+          print("Logged out");
+          setState(() {
+            SSHConn instance = SSHConn.getInstance();
+            instance.disconnect();
+            _loggedIn = false;
+          });
+        },
+      ) : Login(
+        onLogin: () {
+          setState(() {
+            _loggedIn = true;
+          });
+        },
+      )
     );
   }
 }
