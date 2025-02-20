@@ -178,6 +178,7 @@ class _HomeState extends State<Home> {
                         _dir = "$dirName";
                         _dirController.text = _dir!;
                         conn.executeCommand("ls -l $_dir").then((value) {
+                          print(value);
                           setState(() {
                             _files = value.split("\n").sublist(1,value.split("\n").length-1);
                           });

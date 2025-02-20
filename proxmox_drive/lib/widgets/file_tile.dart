@@ -41,7 +41,11 @@ class _FileTileState extends State<FileTile> {
       ),
       onTap: () {
         if(isDir){
-          widget.onDirChange("${widget.dir}/${widget.file.split(" ").last}");
+          if(widget.dir == "/") {
+            widget.onDirChange("${widget.dir}${widget.file.split(" ").last}");
+          } else {
+            widget.onDirChange("${widget.dir}/${widget.file.split(" ").last}");
+          }
         }
       },
       title: Row(

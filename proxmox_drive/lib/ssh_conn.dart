@@ -84,13 +84,12 @@ class SSHConn {
     }
 
     try {
-      final remoteFile = await sftp.open("$serverPath/${localPath.split("\\").last}", mode: SftpFileOpenMode.create | SftpFileOpenMode.write);
+      final remoteFile = await sftp.open("$serverPath/${localPath.split("\\").last.replaceAll(" ", "_")}", mode: SftpFileOpenMode.create | SftpFileOpenMode.write);
       await remoteFile.write(file.openRead().cast());
-       return true;
+      return true;
     } catch(e) {
       return false;
     }
-
   }
 
   Future<bool> downloadFile(String fileDir, String localPath, [bool? isDir]) async {
@@ -105,13 +104,11 @@ class SSHConn {
         await localFile.writeAsBytes(fileBytes);
 
         return true;
-      } 
+      }
 
-      await executeCommand("zip ${fileDir.split("/").last}_tmp.zip $fileDir");
-      print("ZIP creado");
+      await executeCommand("sudo zip -r ${fileDir}_tmp.zip $fileDir -i $fileDir/*");
 
       await downloadFile("${fileDir}_tmp.zip", localPath);
-      print("Archivo descargado");
       
       await deleteFile("${fileDir}_tmp.zip");
 
@@ -123,8 +120,7 @@ class SSHConn {
 
   Future<bool> deleteFile(String fileDir) async {
     try {
-      final sftp = await _client.sftp();
-      await sftp.remove(fileDir);
+      await executeCommand("sudo rm -rf $fileDir");
       return true;
     } catch (e) {
       print(e);
