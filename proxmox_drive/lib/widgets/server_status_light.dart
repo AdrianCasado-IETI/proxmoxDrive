@@ -6,11 +6,11 @@ class ServerStatusWidget extends StatelessWidget {
   final bool isRunning;
 
   const ServerStatusWidget({
-    super.key,
+    Key? key,
     required this.serverName,
     required this.port,
     required this.isRunning,
-  });
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -26,22 +26,41 @@ class ServerStatusWidget extends StatelessWidget {
         child: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            Container(
-              width: 12,
-              height: 12,
-              decoration: BoxDecoration(
-                color: isRunning ? Colors.green : Colors.red,
-                shape: BoxShape.circle,
-              ),
+            CustomPaint(
+              size: Size(14, 14),
+              painter: StatusLightPainter(isRunning: isRunning),
             ),
-            SizedBox(width: 8), 
+            SizedBox(width: 8),
             Text(
               "Servidor $serverName funcionando en el puerto $port",
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black),
             ),
           ],
         ),
       ),
     );
+  }
+}
+
+class StatusLightPainter extends CustomPainter {
+  final bool isRunning;
+
+  StatusLightPainter({required this.isRunning});
+  @override
+  void paint(Canvas canvas, Size size) {
+    final Paint paint = Paint()
+      ..color = isRunning ? Colors.green : Colors.red
+      ..style = PaintingStyle.fill;
+
+    canvas.drawCircle(
+      Offset(size.width / 2, size.height / 2),
+      size.width / 2,
+      paint,
+    );
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return true;
   }
 }

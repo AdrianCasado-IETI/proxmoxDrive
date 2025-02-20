@@ -17,7 +17,7 @@ class MainApp extends StatefulWidget {
 
 class _MainAppState extends State<MainApp> {
   bool _loggedIn = false;
-  bool isRunning = false; // Estado del servidor
+  bool isRunning = true; // Estado del servidor
 
   @override
   Widget build(BuildContext context) {

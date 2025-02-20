@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:dartssh2/dartssh2.dart';
+import 'package:flutter/material.dart';
+import '/widgets/error_dialog.dart'; 
 
 class SSHConn {
   static final SSHConn _instance = SSHConn._internal();
@@ -14,7 +16,8 @@ class SSHConn {
     return _instance;
   }
 
-  Future<bool> connect({
+Future<bool> connect({
+    required BuildContext context, // Se agrega el contexto para el popup
     required String serverName,
     required String serverAddress,
     required int port,
@@ -26,9 +29,10 @@ class SSHConn {
     }
 
     try {
-      print("🔌 Conectando a $serverAddress:$port con usuario $serverName...");
+      print("Conectando a $serverAddress:$port con usuario $serverName...");
 
-      final socket = await SSHSocket.connect(serverAddress, port).timeout(Duration(seconds: 10));
+      final socket = await SSHSocket.connect(serverAddress, port)
+          .timeout(Duration(seconds: 10));
 
       final privateKeyContent = await File(privateKeyPath).readAsString();
       final identity = (await SSHKeyPair.fromPem(privateKeyContent)).first;
@@ -39,13 +43,17 @@ class SSHConn {
         identities: [identity],
       );
 
-      _isConnected = true; 
+      _isConnected = true;
 
-      print("✅ Conexión SSH establecida con éxito.");
+      print("Conexión SSH establecida con éxito.");
       return true;
-      
+
     } catch (e) {
-      print("❌ Error conectando al servidor SSH: $e");
+      print("Error conectando al servidor SSH: $e");
+
+      // Muestra el popup de error
+      ErrorDialog.show(context, "Error de conexión SSH: ${e.toString()}");
+
       return false;
     }
   }
