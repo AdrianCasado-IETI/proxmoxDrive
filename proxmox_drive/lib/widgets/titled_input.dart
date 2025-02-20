@@ -4,9 +4,9 @@ class TitledInput extends StatefulWidget {
 
   final String title;
   final String? value;
-  Function(String) onChanged;
+  final Function(String) onChanged;
 
-  TitledInput({
+  const TitledInput({
     super.key,
     required this.title,
     required this.value,
@@ -48,7 +48,7 @@ class _TitledInputState extends State<TitledInput> {
             painter: TitledInputPainter(),
             child: const SizedBox(
               width: 300,
-              height: 30, 
+              height: 30,
             ),
           ),
         ),

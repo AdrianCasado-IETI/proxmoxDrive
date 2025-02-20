@@ -1,10 +1,18 @@
+import 'package:dartssh2/dartssh2.dart';
 import 'package:flutter/material.dart';
-import 'package:proxmox_drive/app_data.dart';
+import 'package:proxmox_drive/services/app_data.dart';
+import 'package:proxmox_drive/services/ssh_services.dart';
+import 'package:proxmox_drive/ssh_conn.dart';
 import 'package:proxmox_drive/widgets/titled_input.dart';
 
 class Login extends StatefulWidget {
 
-  const Login({super.key});
+  final onLogin;
+
+  const Login({
+    super.key,
+    required this.onLogin
+  });
 
   @override
   State<Login> createState() => _LoginState();
@@ -220,7 +228,24 @@ class _LoginState extends State<Login> {
                                 
                               ),
                             ),
-                            onPressed: () {}, 
+                            onPressed: () {
+                              final sshConn = SSHConn.getInstance();
+                              try {
+                                sshConn.connect(
+                                  serverName: _newServer["name"], 
+                                  serverAddress: _newServer["server"], 
+                                  port: _newServer["port"], 
+                                  privateKeyPath: _newServer["key"]
+                                ).then((value) {
+                                  if(value) {
+                                    widget.onLogin();
+                                  }
+                                  
+                                },);
+                              } catch (error) {
+                                print("Error: $error");
+                              }
+                            }, 
                             child: const Text(
                               "Connectar"
                             )

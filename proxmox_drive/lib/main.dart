@@ -1,52 +1,62 @@
 import 'package:flutter/material.dart';
+import 'package:proxmox_drive/pages/home.dart';
+import 'package:proxmox_drive/pages/login.dart';
+import 'package:proxmox_drive/ssh_conn.dart';
 import '/widgets/server_status_light.dart';
 
 void main() {
-  runApp(MyApp());
+  runApp(MainApp());
 }
 
-class MyApp extends StatelessWidget {
+class MainApp extends StatefulWidget {
+  const MainApp({super.key});
+
+  @override
+  State<MainApp> createState() => _MainAppState();
+}
+
+class _MainAppState extends State<MainApp> {
+  bool _loggedIn = false;
+  bool isRunning = false; // Estado del servidor
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: ServerScreen(),
-    );
-  }
-}
-
-class ServerScreen extends StatefulWidget {
-  @override
-  _ServerScreenState createState() => _ServerScreenState();
-}
-
-class _ServerScreenState extends State<ServerScreen> {
-  bool isRunning = false;
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Estado del Servidor")),
-      body: Stack(
-        children: [
-          Center(
-            child: ElevatedButton(
-              onPressed: () {
+      home: _loggedIn
+          ? Home(
+              onLogOut: () {
+                print("Logged out");
                 setState(() {
-                  isRunning = !isRunning; 
+                  SSHConn instance = SSHConn.getInstance();
+                  instance.disconnect();
+                  _loggedIn = false;
                 });
               },
-              child: Text(isRunning ? "Detener Servidor" : "Iniciar Servidor"),
+            )
+          : Login(
+              onLogin: () {
+                setState(() {
+                  _loggedIn = true;
+                });
+              },
             ),
-          ),
-          if (isRunning)
-            ServerStatusWidget(
-              serverName: "NodeJS",
-              port: 3000,
-              isRunning: isRunning,
-            ),
-        ],
-      ),
+      builder: (context, child) {
+        return Stack(
+          children: [
+            child ?? Container(),
+            if (isRunning)
+              Align(
+                alignment: Alignment.bottomCenter,
+                child: ServerStatusWidget(
+                  serverName: "NodeJS",
+                  port: 3000,
+                  isRunning: isRunning,
+                ),
+              ),
+          ],
+        );
+      },
     );
   }
 }
