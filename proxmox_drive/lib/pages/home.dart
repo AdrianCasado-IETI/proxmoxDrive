@@ -103,7 +103,10 @@ class _HomeState extends State<Home> {
                         },
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(10),
+                              bottomLeft: Radius.circular(10)
+                            ),
                             borderSide: BorderSide(
                               width: 1,
                               color: const Color.fromARGB(255, 184, 184, 184)
@@ -115,8 +118,13 @@ class _HomeState extends State<Home> {
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.amber,
-                        padding: EdgeInsets.all(18)
-                      ),
+                        padding: EdgeInsets.symmetric(vertical: 22, horizontal: 16),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.only(
+                            topRight: Radius.circular(10),
+                            bottomRight: Radius.circular(10)
+                        )
+                      ),),
                       onPressed: () {
                         conn.executeCommand("cd $_dir").then((value) {
                           conn.executeCommand("ls -l $_dir").then((value) {
@@ -178,7 +186,6 @@ class _HomeState extends State<Home> {
                         _dir = "$dirName";
                         _dirController.text = _dir!;
                         conn.executeCommand("ls -l $_dir").then((value) {
-                          print(value);
                           setState(() {
                             _files = value.split("\n").sublist(1,value.split("\n").length-1);
                           });

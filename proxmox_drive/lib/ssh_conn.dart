@@ -123,8 +123,69 @@ class SSHConn {
       await executeCommand("sudo rm -rf $fileDir");
       return true;
     } catch (e) {
-      print(e);
       return false;
     }
   }
+
+  Future<bool> renameFile(String oldName, String newName) {
+    try {
+      executeCommand("mv $oldName $newName");
+      return Future.value(true);
+    } catch (e) {
+      return Future.value(false);
+    }
+  }
+
+  Future<bool> unzipFile(String dir, String fileName) {
+    try {
+      executeCommand("unzip $dir/$fileName -d $dir");
+      return Future.value(true);
+    } catch (e) {
+      return Future.value(false);
+    }
+  }
+
+  Future<bool> executeNodeServer(String dir) async {
+    bool existsServer = await findNodeServer(dir);
+
+    if (!existsServer) {
+      return false;
+    }
+
+    try {
+      await executeCommand("cd $dir/server && node server.js");
+    } catch (e) {
+      return false;
+    }
+
+    return true;
+  }
+
+  Future<bool> findNodeServer(String dir) async {
+  try {
+    final packageJsonPath = '$dir/package.json';
+    if (!File(packageJsonPath).existsSync()) {
+      return false;
+    }
+
+    final packageJsonContent = await File(packageJsonPath).readAsString();
+    if (!packageJsonContent.contains('dependencies')) {
+      return false; 
+    }
+
+    final nodeModulesPath = '$dir/node_modules';
+    if (Directory(nodeModulesPath).existsSync()) {
+      return true;
+    }
+
+    if (packageJsonContent.contains('express') || packageJsonContent.contains('http')) {
+      return true;
+    }
+
+    return false;
+  } catch (e) {
+    print('Error al verificar el directorio: $e');
+    return false;
+  }
+}
 }

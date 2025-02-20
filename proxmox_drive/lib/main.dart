@@ -29,7 +29,6 @@ class _MainAppState extends State<MainApp> {
       debugShowCheckedModeBanner: false,
       home: _loggedIn ? Home(
         onLogOut: () {
-          print("Logged out");
           setState(() {
             SSHConn instance = SSHConn.getInstance();
             instance.disconnect();
