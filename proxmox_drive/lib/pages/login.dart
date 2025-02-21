@@ -4,6 +4,7 @@ import 'package:proxmox_drive/services/app_data.dart';
 import 'package:proxmox_drive/services/ssh_services.dart';
 import 'package:proxmox_drive/ssh_conn.dart';
 import 'package:proxmox_drive/widgets/titled_input.dart';
+import 'package:proxmox_drive/widgets/error_dialog.dart';
 
 class Login extends StatefulWidget {
 
@@ -235,15 +236,16 @@ class _LoginState extends State<Login> {
                                   serverName: _newServer["name"], 
                                   serverAddress: _newServer["server"], 
                                   port: _newServer["port"], 
-                                  privateKeyPath: _newServer["key"]
+                                  privateKeyPath: _newServer["key"], 
+                                  context: context
                                 ).then((value) {
                                   if(value) {
                                     widget.onLogin();
                                   }
                                   
                                 },);
-                              } catch (error) {
-                                print("Error: $error");
+                              } catch (e) {
+                                ErrorDialog.show(context, e.toString());
                               }
                             }, 
                             child: const Text(
