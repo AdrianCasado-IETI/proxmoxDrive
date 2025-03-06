@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:proxmox_drive/services/app_data.dart';
 import 'package:proxmox_drive/ssh_conn.dart';
 import 'package:proxmox_drive/widgets/file_tile.dart';
+import 'package:proxmox_drive/widgets/running_server_detector.dart';
 
 class Home extends StatefulWidget {
 
@@ -22,11 +23,52 @@ class _HomeState extends State<Home> {
   List<String> _files = [];
   String? _dir;
 
+  String? _serverFile;
+
+  bool _isServerRunning = false;
+
+  void _checkServerStatus() {
+    if (_dir == null) return;
+
+    conn.isServer(_dir!).then((value) {
+      if (value != null) {
+        conn.isServerRunning(value).then((isRunning) {
+          conn.getServerPort(_dir!,value).then((value) {
+            print(value);
+          });
+          setState(() {
+            
+            _serverFile = value;
+            _isServerRunning = isRunning;
+          });
+        });
+      } else {
+        setState(() {
+          _serverFile = null;
+          _isServerRunning = false;
+        });
+      }
+    });
+  }
   final TextEditingController _dirController = TextEditingController(); 
 
   @override
   void initState() {
     super.initState();
+
+    conn.isServer("/home/super").then((value) {
+      setState(() {
+        _serverFile = value;
+      });
+
+      if(value != null) {
+        conn.isServerRunning(value).then((value) {
+          setState(() {
+            _isServerRunning = value;
+          });
+        });
+      }
+    });
 
     conn.executeCommand("pwd").then((value) {
       setState(() {
@@ -128,6 +170,7 @@ class _HomeState extends State<Home> {
                       onPressed: () {
                         conn.executeCommand("cd $_dir").then((value) {
                           conn.executeCommand("ls -l $_dir").then((value) {
+                            _checkServerStatus();
                             setState(() {
                               _files = value.split("\n").sublist(1,value.split("\n").length-1);
                             });
@@ -142,7 +185,7 @@ class _HomeState extends State<Home> {
                     )
                   ],
                 ),
-                SizedBox(height: 16,),
+                SizedBox(height: 16),
               ],
             ),
           ),
@@ -162,6 +205,7 @@ class _HomeState extends State<Home> {
                           }
                           _dirController.text = _dir!;
                           conn.executeCommand("ls -l $_dir").then((value) {
+                            _checkServerStatus();
                             setState(() {
                               _files = value.split("\n").sublist(1,value.split("\n").length-1);
                             });
@@ -186,6 +230,7 @@ class _HomeState extends State<Home> {
                         _dir = "$dirName";
                         _dirController.text = _dir!;
                         conn.executeCommand("ls -l $_dir").then((value) {
+                          _checkServerStatus();
                           setState(() {
                             _files = value.split("\n").sublist(1,value.split("\n").length-1);
                           });
@@ -198,7 +243,9 @@ class _HomeState extends State<Home> {
                 }
               }  
             ),
-          )
+          ),
+          if(_serverFile != null)
+          RunningServerDetector(isRunning: _isServerRunning, serverName: _serverFile!,)
         ],
       )
     );

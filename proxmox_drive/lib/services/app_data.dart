@@ -94,4 +94,5 @@ static Future<bool> saveServer(Map<String, dynamic> server) async {
     String? result = await FilePicker.platform.getDirectoryPath();
     return result;
   }
+  
 }

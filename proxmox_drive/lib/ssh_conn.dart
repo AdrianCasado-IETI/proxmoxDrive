@@ -1,3 +1,4 @@
+import 'dart:ffi';
 import 'dart:io';
 import 'package:dartssh2/dartssh2.dart';
 
@@ -90,6 +91,80 @@ class SSHConn {
     } catch(e) {
       return false;
     }
+  }  
+  
+  Future<String?> isServer(String dir) async {
+    try {
+      final result = await executeCommand("ls $dir");
+      List<String> dirFiles = result.split("\n");
+      for (String file in dirFiles) {
+        if (file.contains("server.js") || file.contains("app.js") || file.contains("index.js") || file.contains(".jar")) { 
+          return file;
+        }
+      }
+      return null;
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future<bool> isServerRunning(String serverFile) async {
+    try {
+      if(serverFile.split(".").last == "jar") {
+        final result = await executeCommand("pgrep -f 'java -jar $serverFile'");
+        return result.isNotEmpty;
+      }
+      else if(serverFile.split(".").last == "js") {
+        final result = await executeCommand("pgrep -f 'node $serverFile'");
+        return result.isNotEmpty;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> stopServer(String serverFile) async {
+    try {
+      if(serverFile.split(".").last == "jar") {
+        await executeCommand("pkill -f 'java -jar $serverFile'");
+        return true;
+      }
+      else if(serverFile.split(".").last == "js") {
+        await executeCommand("pkill -f 'node $serverFile'");
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<bool> startServer(String serverFile) async {
+    try {
+      if(serverFile.split(".").last == "jar") {
+        await executeCommand("nohup java -jar $serverFile > output.log 2>&1 &");
+        return true;
+      }
+      else if(serverFile.split(".").last == "js") {
+        await executeCommand("nohup node $serverFile > output.log 2>&1 &");
+        return true;
+      }
+      return false;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<int> getServerPort(String fileDir, String serverFile) async {
+    try {
+      print("lsof -i -P -n | grep \$(pgrep -f '$fileDir/$serverFile')");
+      final result = await executeCommand("lsof -i -P -n | grep \$(pgrep -f '$fileDir/$serverFile')");
+      print(result);
+      return int.parse(result.split(":").last.split(" ").first);
+    } catch (e) {
+      return -1;
+    }
   }
 
   Future<bool> downloadFile(String fileDir, String localPath, [bool? isDir]) async {
@@ -138,7 +213,7 @@ class SSHConn {
 
   Future<bool> unzipFile(String dir, String fileName) {
     try {
-      executeCommand("unzip $dir/$fileName -d $dir");
+      executeCommand("sudo unzip $dir/$fileName -d $dir");
       return Future.value(true);
     } catch (e) {
       return Future.value(false);
